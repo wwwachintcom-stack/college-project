@@ -1,0 +1,13 @@
+{
+    "name": "medicare/clinic-management",
+    "description": "MediCare — Smart Clinic Management System",
+    "require": {
+        "php": ">=7.4",
+        "mongodb/mongodb": "^1.16"
+    },
+    "autoload": {
+        "psr-4": {
+            "Medicare\\": "src/"
+        }
+    }
+}

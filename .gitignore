@@ -1,0 +1,21 @@
+# ============================================
+# MediCare — Git Ignore
+# ============================================
+
+# Environment file — KABHI PUSH MAT KARO
+.env
+
+# Composer dependencies
+/vendor/
+composer.lock
+
+# PHP cache
+*.cache
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
