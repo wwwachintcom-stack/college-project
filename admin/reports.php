@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once dirname(__DIR__) . '/config/config.php';
 requireRole('admin');
 
 $totalRev  = (col('bills')->aggregate([['$group'=>['_id'=>null,'t'=>['$sum'=>'$paid_amount']]]])[0]['t']??0);

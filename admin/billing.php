@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once dirname(__DIR__) . '/config/config.php';
 requireRole('admin');
 
 $bills = col('bills')->aggregate([

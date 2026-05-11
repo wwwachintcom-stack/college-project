@@ -1,11 +1,22 @@
 <?php
 /**
  * Vercel Entry Point — All requests come here
- * Routes to correct PHP file based on URI
  */
 
-// Set base path for includes
-define('BASE_PATH', __DIR__ . '/..');
+// BASE_PATH — works on Vercel and localhost
+$possibleRoots = [
+    __DIR__ . '/..',           // localhost: medicare/api/../ = medicare/
+    '/var/task',               // Vercel root
+    dirname(__DIR__),          // fallback
+];
+$basePath = __DIR__ . '/..';
+foreach ($possibleRoots as $p) {
+    if (file_exists($p . '/config/config.php')) {
+        $basePath = $p;
+        break;
+    }
+}
+define('BASE_PATH', realpath($basePath) ?: $basePath);
 
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 $uri = rtrim($uri, '/') ?: '/';
@@ -185,9 +196,24 @@ if (!$file) {
 }
 
 if ($file && file_exists(BASE_PATH . $file)) {
-    // Fix relative paths for includes inside PHP files
-    chdir(BASE_PATH . dirname($file));
-    require BASE_PATH . $file;
+    $fullPath = BASE_PATH . $file;
+    $fileDir  = dirname($fullPath);
+
+    // Fix working directory and SERVER vars for included files
+    chdir($fileDir);
+    $_SERVER['SCRIPT_FILENAME'] = $fullPath;
+    $_SERVER['SCRIPT_NAME']     = $file;
+    $_SERVER['PHP_SELF']        = $file;
+
+    // Override relative require paths by defining BASE_PATH constant
+    // All PHP files use '../config/config.php' — fix with absolute path
+    // Patch: pre-load config so included files don't need relative paths
+    if (!defined('CONFIG_LOADED')) {
+        define('CONFIG_LOADED', true);
+        require_once BASE_PATH . '/config/config.php';
+    }
+
+    require $fullPath;
     exit;
 }
 
