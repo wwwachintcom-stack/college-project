@@ -15,40 +15,40 @@ $uri = preg_replace('/\.php$/', '', $uri);
 
 // Route map
 $routes = [
-    '/'                    => '/index.php',
-    '/auth/login'          => '/auth/login.php',
-    '/auth/logout'         => '/auth/logout.php',
-    '/auth/register'       => '/auth/register.php',
+    '/' => '/index.php',
+    '/auth/login' => '/auth/login.php',
+    '/auth/logout' => '/auth/logout.php',
+    '/auth/register' => '/auth/register.php',
 
-    '/patient/dashboard'   => '/patient/dashboard.php',
-    '/patient/book'        => '/patient/book.php',
-    '/patient/appointments'=> '/patient/appointments.php',
-    '/patient/prescriptions'=> '/patient/prescriptions.php',
-    '/patient/waiting_room'=> '/patient/waiting_room.php',
-    '/patient/profile'     => '/patient/profile.php',
+    '/patient/dashboard' => '/patient/dashboard.php',
+    '/patient/book' => '/patient/book.php',
+    '/patient/appointments' => '/patient/appointments.php',
+    '/patient/prescriptions' => '/patient/prescriptions.php',
+    '/patient/waiting_room' => '/patient/waiting_room.php',
+    '/patient/profile' => '/patient/profile.php',
 
-    '/doctor/dashboard'    => '/doctor/dashboard.php',
+    '/doctor/dashboard' => '/doctor/dashboard.php',
     '/doctor/appointments' => '/doctor/appointments.php',
-    '/doctor/patients'     => '/doctor/patients.php',
-    '/doctor/prescriptions'=> '/doctor/prescriptions.php',
+    '/doctor/patients' => '/doctor/patients.php',
+    '/doctor/prescriptions' => '/doctor/prescriptions.php',
     '/doctor/waiting_room' => '/doctor/waiting_room.php',
-    '/doctor/profile'      => '/doctor/profile.php',
+    '/doctor/profile' => '/doctor/profile.php',
 
     '/reception/dashboard' => '/reception/dashboard.php',
-    '/reception/appointments'=> '/reception/appointments.php',
-    '/reception/walkin'    => '/reception/walkin.php',
-    '/reception/checkin'   => '/reception/checkin.php',
-    '/reception/billing'   => '/reception/billing.php',
-    '/reception/waiting_room'=> '/reception/waiting_room.php',
-    '/reception/patients'  => '/reception/patients.php',
+    '/reception/appointments' => '/reception/appointments.php',
+    '/reception/walkin' => '/reception/walkin.php',
+    '/reception/checkin' => '/reception/checkin.php',
+    '/reception/billing' => '/reception/billing.php',
+    '/reception/waiting_room' => '/reception/waiting_room.php',
+    '/reception/patients' => '/reception/patients.php',
 
-    '/admin/dashboard'     => '/admin/dashboard.php',
-    '/admin/users'         => '/admin/users.php',
-    '/admin/doctors'       => '/admin/doctors.php',
-    '/admin/appointments'  => '/admin/appointments.php',
-    '/admin/billing'       => '/admin/billing.php',
-    '/admin/reports'       => '/admin/reports.php',
-    '/admin/settings'      => '/admin/settings.php',
+    '/admin/dashboard' => '/admin/dashboard.php',
+    '/admin/users' => '/admin/users.php',
+    '/admin/doctors' => '/admin/doctors.php',
+    '/admin/appointments' => '/admin/appointments.php',
+    '/admin/billing' => '/admin/billing.php',
+    '/admin/reports' => '/admin/reports.php',
+    '/admin/settings' => '/admin/settings.php',
 ];
 
 // API routes
@@ -62,92 +62,111 @@ if (str_starts_with($uri, '/api')) {
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key');
 
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        http_response_code(204); exit;
+        http_response_code(204);
+        exit;
     }
 
     // Strip /api prefix and route
     $apiUri = substr($uri, 4) ?: '/';
-    $parts  = array_values(array_filter(explode('/', trim($apiUri, '/'))));
+    $parts = array_values(array_filter(explode('/', trim($apiUri, '/'))));
     $resource = $parts[0] ?? null;
-    $id       = $parts[1] ?? null;
+    $id = $parts[1] ?? null;
 
-    $allowed = ['users','appointments','doctors','prescriptions','bills','waiting_room','notifications'];
+    $allowed = ['users', 'appointments', 'doctors', 'prescriptions', 'bills', 'waiting_room', 'notifications'];
 
     if (!$resource) {
         http_response_code(200);
-        echo json_encode(['success'=>true,'message'=>'MediCare API','version'=>'1.0','endpoints'=>array_map(fn($r)=>"/api/$r",$allowed)]);
+        echo json_encode(['success' => true, 'message' => 'MediCare API', 'version' => '1.0', 'endpoints' => array_map(fn($r) => "/api/$r", $allowed)]);
         exit;
     }
 
     if (!in_array($resource, $allowed)) {
         http_response_code(404);
-        echo json_encode(['success'=>false,'message'=>"Resource '$resource' not found"]);
+        echo json_encode(['success' => false, 'message' => "Resource '$resource' not found"]);
         exit;
     }
 
     $method = $_SERVER['REQUEST_METHOD'];
-    $body   = json_decode(file_get_contents('php://input'), true) ?? [];
+    $body = json_decode(file_get_contents('php://input'), true) ?? [];
 
-    function apiOk(mixed $data, int $code=200, string $msg='Success'): never {
+    function apiOk(mixed $data, int $code = 200, string $msg = 'Success'): never
+    {
         http_response_code($code);
-        echo json_encode(['success'=>true,'message'=>$msg,'data'=>$data],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+        echo json_encode(['success' => true, 'message' => $msg, 'data' => $data], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
     }
-    function apiErr(string $msg, int $code=400): never {
+    function apiErr(string $msg, int $code = 400): never
+    {
         http_response_code($code);
-        echo json_encode(['success'=>false,'message'=>$msg],JSON_PRETTY_PRINT);
+        echo json_encode(['success' => false, 'message' => $msg], JSON_PRETTY_PRINT);
         exit;
     }
-    function cleanDoc(mixed $doc): mixed {
-        if (!$doc) return null;
+    function cleanDoc(mixed $doc): mixed
+    {
+        if (!$doc)
+            return null;
         if (is_array($doc)) {
-            if (isset($doc['_id'])) $doc['_id'] = oid($doc['_id']);
+            if (isset($doc['_id']))
+                $doc['_id'] = oid($doc['_id']);
             unset($doc['password']);
         }
         return $doc;
     }
 
-    match(true) {
-        $method==='GET'    && !$id => (function() use($resource) {
-            $f=[]; $o=['limit'=>min((int)($_GET['limit']??20),100)];
-            if(!empty($_GET['role']))   $f['role']=$_GET['role'];
-            if(!empty($_GET['status'])) $f['status']=$_GET['status'];
-            $docs=array_map('cleanDoc',col($resource)->find($f,$o));
-            apiOk(['count'=>count($docs),'limit'=>$o['limit'],$resource=>$docs]);
-        })(),
-        $method==='GET'    &&  $id => (function() use($resource,$id) {
-            $doc=col($resource)->findOne(['_id'=>toOid($id)]);
-            if(!$doc) apiErr("Not found",404);
-            apiOk(cleanDoc($doc));
-        })(),
-        $method==='POST'   && !$id => (function() use($resource,$body) {
-            if(empty($body)) apiErr('Empty body');
-            if($resource==='users'&&!empty($body['password'])) $body['password']=password_hash($body['password'],PASSWORD_DEFAULT);
-            $body['created_at']=now();
-            $r=col($resource)->insertOne($body);
-            $id=oid($r->insertedId);
-            apiOk(cleanDoc(col($resource)->findOne(['_id'=>toOid($id)])),201,'Created');
-        })(),
-        $method==='PUT'    &&  $id => (function() use($resource,$id,$body) {
-            if(!col($resource)->findOne(['_id'=>toOid($id)])) apiErr("Not found",404);
-            if($resource==='users'&&!empty($body['password'])) $body['password']=password_hash($body['password'],PASSWORD_DEFAULT);
-            $body['updated_at']=now(); unset($body['_id'],$body['created_at']);
-            col($resource)->updateOne(['_id'=>toOid($id)],['$set'=>$body]);
-            apiOk(cleanDoc(col($resource)->findOne(['_id'=>toOid($id)])));
-        })(),
-        $method==='PATCH'  &&  $id => (function() use($resource,$id,$body) {
-            if(!col($resource)->findOne(['_id'=>toOid($id)])) apiErr("Not found",404);
-            if($resource==='users'&&!empty($body['password'])) $body['password']=password_hash($body['password'],PASSWORD_DEFAULT);
-            $body['updated_at']=now(); unset($body['_id'],$body['created_at']);
-            col($resource)->updateOne(['_id'=>toOid($id)],['$set'=>$body]);
-            apiOk(cleanDoc(col($resource)->findOne(['_id'=>toOid($id)])));
-        })(),
-        $method==='DELETE' &&  $id => (function() use($resource,$id) {
-            if(!col($resource)->findOne(['_id'=>toOid($id)])) apiErr("Not found",404);
-            col($resource)->deleteOne(['_id'=>toOid($id)]);
-            apiOk(['id'=>$id],'Deleted');
-        })(),
-        default => apiErr("Method not allowed",405),
+    match (true) {
+        $method === 'GET' && !$id => (function () use ($resource) {
+                $f = [];
+                $o = ['limit' => min((int) ($_GET['limit'] ?? 20), 100)];
+                if (!empty($_GET['role']))
+                    $f['role'] = $_GET['role'];
+                if (!empty($_GET['status']))
+                    $f['status'] = $_GET['status'];
+                $docs = array_map('cleanDoc', col($resource)->find($f, $o));
+                apiOk(['count' => count($docs), 'limit' => $o['limit'], $resource => $docs]);
+            })(),
+        $method === 'GET' && $id => (function () use ($resource, $id) {
+                $doc = col($resource)->findOne(['_id' => toOid($id)]);
+                if (!$doc)
+                    apiErr("Not found", 404);
+                apiOk(cleanDoc($doc));
+            })(),
+        $method === 'POST' && !$id => (function () use ($resource, $body) {
+                if (empty($body))
+                    apiErr('Empty body');
+                if ($resource === 'users' && !empty($body['password']))
+                    $body['password'] = password_hash($body['password'], PASSWORD_DEFAULT);
+                $body['created_at'] = now();
+                $r = col($resource)->insertOne($body);
+                $id = oid($r->insertedId);
+                apiOk(cleanDoc(col($resource)->findOne(['_id' => toOid($id)])), 201, 'Created');
+            })(),
+        $method === 'PUT' && $id => (function () use ($resource, $id, $body) {
+                if (!col($resource)->findOne(['_id' => toOid($id)]))
+                    apiErr("Not found", 404);
+                if ($resource === 'users' && !empty($body['password']))
+                    $body['password'] = password_hash($body['password'], PASSWORD_DEFAULT);
+                $body['updated_at'] = now();
+                unset($body['_id'], $body['created_at']);
+                col($resource)->updateOne(['_id' => toOid($id)], ['$set' => $body]);
+                apiOk(cleanDoc(col($resource)->findOne(['_id' => toOid($id)])));
+            })(),
+        $method === 'PATCH' && $id => (function () use ($resource, $id, $body) {
+                if (!col($resource)->findOne(['_id' => toOid($id)]))
+                    apiErr("Not found", 404);
+                if ($resource === 'users' && !empty($body['password']))
+                    $body['password'] = password_hash($body['password'], PASSWORD_DEFAULT);
+                $body['updated_at'] = now();
+                unset($body['_id'], $body['created_at']);
+                col($resource)->updateOne(['_id' => toOid($id)], ['$set' => $body]);
+                apiOk(cleanDoc(col($resource)->findOne(['_id' => toOid($id)])));
+            })(),
+        $method === 'DELETE' && $id => (function () use ($resource, $id) {
+                if (!col($resource)->findOne(['_id' => toOid($id)]))
+                    apiErr("Not found", 404);
+                col($resource)->deleteOne(['_id' => toOid($id)]);
+                apiOk(['id' => $id], 200, 'Deleted');
+            })(),
+        default => apiErr("Method not allowed", 405),
     };
     exit;
 }
@@ -158,7 +177,10 @@ $file = $routes[$uri] ?? null;
 if (!$file) {
     // Try with trailing variations
     foreach ($routes as $route => $target) {
-        if (str_starts_with($uri, $route)) { $file = $target; break; }
+        if (str_starts_with($uri, $route)) {
+            $file = $target;
+            break;
+        }
     }
 }
 
