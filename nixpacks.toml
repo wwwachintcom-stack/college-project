@@ -1,5 +1,8 @@
 [phases.setup]
-nixPkgs = ["php81", "php81Extensions.mongodb", "php81Extensions.curl", "php81Extensions.mbstring", "php81Extensions.openssl"]
+nixPkgs = ["php83", "php83Extensions.curl", "php83Extensions.mbstring", "php83Extensions.openssl", "php83Extensions.tokenizer", "php83Extensions.phar"]
+
+[phases.install]
+cmds = []
 
 [start]
 cmd = "php -S 0.0.0.0:$PORT router.php"
