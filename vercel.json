@@ -1,11 +1,13 @@
 {
+  "version": 2,
   "functions": {
-    "api/*.php": {
-      "runtime": "vercel-php@0.7.2"
-    },
-    "*.php": {
-      "runtime": "vercel-php@0.7.2"
-    }
+    "index.php": { "runtime": "vercel-php@0.7.2" },
+    "auth/*.php": { "runtime": "vercel-php@0.7.2" },
+    "patient/*.php": { "runtime": "vercel-php@0.7.2" },
+    "doctor/*.php": { "runtime": "vercel-php@0.7.2" },
+    "reception/*.php": { "runtime": "vercel-php@0.7.2" },
+    "admin/*.php": { "runtime": "vercel-php@0.7.2" },
+    "api/*.php": { "runtime": "vercel-php@0.7.2" }
   },
   "routes": [
     {
@@ -13,8 +15,24 @@
       "dest": "/assets/$1"
     },
     {
-      "src": "/(.*\\.php)",
-      "dest": "/$1"
+      "src": "/auth/(.*)\\.php",
+      "dest": "/auth/$1.php"
+    },
+    {
+      "src": "/patient/(.*)\\.php",
+      "dest": "/patient/$1.php"
+    },
+    {
+      "src": "/doctor/(.*)\\.php",
+      "dest": "/doctor/$1.php"
+    },
+    {
+      "src": "/reception/(.*)\\.php",
+      "dest": "/reception/$1.php"
+    },
+    {
+      "src": "/admin/(.*)\\.php",
+      "dest": "/admin/$1.php"
     },
     {
       "src": "/api/(.*)",
@@ -24,9 +42,5 @@
       "src": "/(.*)",
       "dest": "/index.php"
     }
-  ],
-  "env": {
-    "MONGO_URI": "@mongo_uri",
-    "MONGO_DB": "@mongo_db"
-  }
+  ]
 }
