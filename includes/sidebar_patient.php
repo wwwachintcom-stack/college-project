@@ -7,7 +7,6 @@
         <a href="/patient/book.php"          class="nav-link <?= $cur==='book.php'          ?'active':'' ?>"><i class="fas fa-plus-circle"></i> Book Appointment</a>
         <a href="/patient/appointments.php"  class="nav-link <?= $cur==='appointments.php'  ?'active':'' ?>"><i class="fas fa-calendar-alt"></i> My Appointments</a>
         <a href="/patient/prescriptions.php" class="nav-link <?= $cur==='prescriptions.php' ?'active':'' ?>"><i class="fas fa-file-prescription"></i> Prescriptions</a>
-        <a href="/patient/bills.php"         class="nav-link <?= $cur==='bills.php'         ?'active':'' ?>"><i class="fas fa-file-invoice-dollar"></i> Bills</a>
         <a href="/patient/waiting_room.php"  class="nav-link <?= $cur==='waiting_room.php'  ?'active':'' ?>"><i class="fas fa-door-open"></i> Waiting Room</a>
         <div class="nav-section">Account</div>
         <a href="/patient/profile.php"       class="nav-link <?= $cur==='profile.php'       ?'active':'' ?>"><i class="fas fa-user"></i> My Profile</a>

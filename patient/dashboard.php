@@ -7,7 +7,6 @@ $uid = toOid($u['id']);
 $total   = col('appointments')->countDocuments(['patient_id'=>$uid]);
 $upcoming= col('appointments')->countDocuments(['patient_id'=>$uid,'appointment_date'=>['$gte'=>today()],'status'=>['$nin'=>['cancelled','completed']]]);
 $prescs  = col('prescriptions')->countDocuments(['patient_id'=>$uid]);
-$bills   = col('bills')->countDocuments(['patient_id'=>$uid,'payment_status'=>['$ne'=>'paid']]);
 
 $appts = toArr(col('appointments')->aggregate([
     ['$match'  => ['patient_id'=>$uid,'appointment_date'=>['$gte'=>today()],'status'=>['$nin'=>['cancelled','completed']]]],
@@ -56,7 +55,6 @@ $pageTitle = 'Dashboard';
         <div class="stat-card"><div class="stat-icon si-purple"><i class="fas fa-calendar-alt"></i></div><div><div class="stat-val"><?= $total ?></div><div class="stat-lbl">Total Appointments</div></div></div>
         <div class="stat-card"><div class="stat-icon si-blue"><i class="fas fa-clock"></i></div><div><div class="stat-val"><?= $upcoming ?></div><div class="stat-lbl">Upcoming</div></div></div>
         <div class="stat-card"><div class="stat-icon si-green"><i class="fas fa-file-prescription"></i></div><div><div class="stat-val"><?= $prescs ?></div><div class="stat-lbl">Prescriptions</div></div></div>
-        <div class="stat-card"><div class="stat-icon si-orange"><i class="fas fa-file-invoice-dollar"></i></div><div><div class="stat-val"><?= $bills ?></div><div class="stat-lbl">Pending Bills</div></div></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 320px;gap:22px">
@@ -111,7 +109,6 @@ $pageTitle = 'Dashboard';
                 <div style="display:flex;flex-direction:column;gap:9px">
                     <a href="/patient/book.php"          class="btn btn-primary btn-sm"><i class="fas fa-plus-circle"></i> Book Appointment</a>
                     <a href="/patient/prescriptions.php" class="btn btn-outline btn-sm"><i class="fas fa-file-prescription"></i> Prescriptions</a>
-                    <a href="/patient/bills.php"         class="btn btn-outline btn-sm"><i class="fas fa-file-invoice-dollar"></i> Bills</a>
                     <a href="/patient/waiting_room.php"  class="btn btn-outline btn-sm"><i class="fas fa-door-open"></i> Waiting Room</a>
                 </div>
             </div>
